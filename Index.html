@@ -1,1092 +1,951 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Estudo Dirigido Interativo: Da fonte infinitesimal ao campo elétrico</title>
-
-  <!-- Tailwind CSS CDN -->
+  <title>Estudo Dirigido: Da Fonte Infinitesimal ao Campo Elétrico</title>
+  
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- KaTeX para renderização matemática rigorosa -->
+  
+  <!-- KaTeX para renderização de fórmulas matemáticas -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"></script>
-
-  <!-- Three.js e OrbitControls para as Figuras 1 e 2 -->
+  
+  <!-- Three.js e OrbitControls para visualização 3D interativa -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 
   <style>
-    .math-font { font-family: 'KaTeX_Math', 'Times New Roman', serif; }
-    textarea:focus { outline: none; border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2); }
+    .katex-display { margin: 0.6em 0; overflow-x: auto; overflow-y: hidden; }
+    .slider-accent { accent-color: #0284c7; }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased font-sans pb-16">
+<body class="bg-slate-50 text-slate-800 font-sans antialiased min-h-screen flex flex-col selection:bg-sky-200">
 
-  <!-- Cabeçalho Académico Formal -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-5xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+  <!-- CABEÇALHO DO DOCUMENTO INSTITUCIONAL -->
+  <header class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-40">
+    <div class="max-w-5xl mx-auto px-4 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
       <div>
-        <p class="text-xs font-bold uppercase tracking-widest text-sky-700">Universidade do Estado do Pará • CCSE</p>
-        <p class="text-xs text-slate-500">Curso: Licenciatura em Física | Disciplina: Introdução à Teoria Eletromagnética | Prof.: Penn Rodrigues</p>
-        <h1 class="text-xl font-bold text-slate-900 mt-1">ESTUDO DIRIGIDO: Da fonte infinitesimal ao campo elétrico</h1>
+        <div class="text-xs font-bold uppercase tracking-wider text-sky-800">
+          Universidade do Estado do Pará • CCSE • Licenciatura em Física
+        </div>
+        <h1 class="text-xl md:text-2xl font-black text-slate-900 leading-tight">
+          ESTUDO DIRIGIDO: Da fonte infinitesimal ao campo elétrico
+        </h1>
+        <div class="text-xs text-slate-500 font-medium">
+          Disciplina: Introdução à Teoria Eletromagnética • Prof.: Penn Rodrigues
+        </div>
       </div>
-      <div class="flex items-center gap-2">
-        <button onclick="window.print()" class="text-xs bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-3 py-2 rounded-lg border border-slate-300 transition">
-          Imprimir / Guardar PDF
-        </button>
-      </div>
+      <!-- Barra de navegação rápida de seções -->
+      <nav class="flex flex-wrap gap-1.5 text-xs font-semibold">
+        <a href="#intro" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 transition">Início</a>
+        <a href="#caso1" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 transition">Caso 1: Esfera</a>
+        <a href="#metalica" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 transition">Esfera Metálica</a>
+        <a href="#caso2" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 transition">Caso 2: Espira</a>
+        <a href="#sintese" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-sky-100 text-slate-700 hover:text-sky-800 transition">Síntese & Gráficos</a>
+      </nav>
     </div>
   </header>
 
-  <!-- Identificação do Estudante -->
-  <div class="max-w-5xl mx-auto px-6 mt-6">
-    <div class="bg-white border border-slate-200 p-4 rounded-xl shadow-sm grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
-      <div>
-        <label class="block font-semibold text-slate-600 mb-1">Estudante:</label>
-        <input type="text" placeholder="Nome completo" class="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 focus:bg-white transition">
-      </div>
-      <div>
-        <label class="block font-semibold text-slate-600 mb-1">Turma:</label>
-        <input type="text" placeholder="Turma" class="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 focus:bg-white transition">
-      </div>
-      <div>
-        <label class="block font-semibold text-slate-600 mb-1">Data:</label>
-        <input type="text" placeholder="DD/MM/AAAA" class="w-full bg-slate-50 border border-slate-300 rounded px-2.5 py-1.5 focus:bg-white transition">
-      </div>
+  <!-- FORMULÁRIO DE IDENTIFICAÇÃO DO ESTUDANTE -->
+  <section class="max-w-5xl mx-auto w-full px-4 pt-6">
+    <div class="bg-white p-4 rounded-xl border border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+      <div><span class="text-slate-500 font-semibold">Estudante:</span> <input type="text" placeholder="Insira o seu nome" class="w-full mt-1 px-2.5 py-1 border rounded focus:ring-1 focus:ring-sky-500 outline-none"></div>
+      <div><span class="text-slate-500 font-semibold">Turma:</span> <input type="text" placeholder="Ex: Turma A" class="w-full mt-1 px-2.5 py-1 border rounded focus:ring-1 focus:ring-sky-500 outline-none"></div>
+      <div><span class="text-slate-500 font-semibold">Data:</span> <input type="date" class="w-full mt-1 px-2.5 py-1 border rounded focus:ring-1 focus:ring-sky-500 outline-none"></div>
     </div>
-  </div>
+  </section>
 
-  <main class="max-w-5xl mx-auto px-6 mt-6 space-y-10">
+  <!-- CORPO PRINCIPAL -->
+  <main class="max-w-5xl mx-auto w-full px-4 py-6 space-y-10 flex-1">
 
-    <!-- PÁGINA 1: Introdução e Convenções -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-sky-600 uppercase tracking-wider">Orientação Geral</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">Da fonte infinitesimal ao campo elétrico</h2>
-      </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed mb-4">
-        Este estudo orienta o cálculo do campo de uma esfera com carga volumétrica uniforme e de uma espira circular carregada. A construção parte de um elemento de carga, passa pela geometria e termina na integração. Registe os passos nos espaços indicados; uma resposta final sem desenvolvimento não explicita o raciocínio empregado.
-      </p>
-
-      <div class="bg-sky-50/70 border border-sky-100 rounded-xl p-4 text-xs text-slate-700 space-y-2 mb-6">
-        <p class="font-bold text-sky-900">Convenções e Notação:</p>
-        <p>Trabalhamos no vácuo. A linha identifica a fonte: $\vec{r}'$, $dq'$, $dl'$, $da'$ e $d\tau'$. O ponto de observação tem posição $\vec{r}$ sem linha. O <i>r</i> caligráfico de Griffiths identifica o vetor separação:</p>
-        <div class="bg-white p-2.5 rounded border border-sky-200 font-mono text-center">
-          $$\vec{\imath} = \vec{r} - \vec{r}', \quad \imath = |\vec{r} - \vec{r}'|, \quad \hat{\imath} = \frac{\vec{\imath}}{\imath} \tag{1}$$
-        </div>
-        <p>O símbolo $r' = |\vec{r}'|$ denota a distância da fonte à origem; $\imath$ é a distância da fonte até ao observador. Em geral, essas duas distâncias são diferentes. Pela lei de Coulomb:</p>
-        <div class="bg-white p-2.5 rounded border border-sky-200 font-mono text-center">
-          $$d\vec{E}(\vec{r}) = \frac{1}{4\pi\varepsilon_0}\frac{dq'}{\imath^2}\hat{\imath} = \frac{1}{4\pi\varepsilon_0}\frac{\vec{r} - \vec{r}'}{|\vec{r} - \vec{r}'|^3}dq', \quad \vec{E}(\vec{r}) = \int_{\text{fonte}} d\vec{E}(\vec{r}) \tag{2}$$
-        </div>
-        <p class="italic text-slate-500">
-          <b>Antes de começar:</b> Para a esfera, adotaremos uma distribuição volumétrica prescrita, com carga imobilizada. Uma esfera metálica isolada em equilíbrio eletrostático, sem campo externo, tem excesso de carga na superfície. A comparação entre os modelos será feita adiante.
+    <!-- INTRODUÇÃO E CONVENÇÕES (PÁGINA 1) -->
+    <section id="intro" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+      <div class="border-b border-slate-100 pb-3">
+        <h2 class="text-lg font-bold text-slate-900 uppercase tracking-wide">ESTUDO DIRIGIDO • ORIENTAÇÃO</h2>
+        <p class="text-sm text-slate-600 mt-1">
+          Este estudo orienta o cálculo do campo de uma esfera com carga volumétrica uniforme e de uma espira circular carregada. A construção parte de um elemento de carga, passa pela geometria e termina na integração. Registre os passos nos espaços indicados; uma resposta final sem desenvolvimento não explicita o raciocínio empregado.
         </p>
       </div>
 
-      <!-- Exercício 1 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 1</span>
+      <div class="bg-sky-50/80 p-4 rounded-xl border border-sky-100 text-xs sm:text-sm space-y-2 text-slate-700">
+        <h3 class="font-bold text-sky-950">Convenções e Notação de Griffiths:</h3>
+        <p>
+          Trabalhamos no vácuo. A linha identifica a fonte: $\vec{r}'$, $dq'$, $dl'$, $da'$ e $d\tau'$. O ponto de observação tem posição $\vec{r}$ sem linha. O $r$ caligráfico ($\vec{\imath}$) identifica a separação:
+        </p>
+        <div class="text-center font-mono text-xs sm:text-sm py-1">
+          $$\vec{\imath} = \vec{r} - \vec{r}', \quad \imath = |\vec{r} - \vec{r}'|, \quad \hat{\imath} = \frac{\vec{\imath}}{\imath} \qquad (1)$$
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
+        <p>
+          O símbolo $r' = |\vec{r}'|$ é a distância da fonte à origem; $\imath$ é a distância da fonte até o observador. Em geral, essas duas distâncias são diferentes. Pela lei de Coulomb:
+        </p>
+        <div class="text-center font-mono text-xs sm:text-sm py-1">
+          $$d\vec{E}(\vec{r}) = \frac{1}{4\pi\epsilon_0} \frac{dq'}{\imath^2} \hat{\imath} = \frac{1}{4\pi\epsilon_0} \frac{\vec{r} - \vec{r}'}{|\vec{r} - \vec{r}'|^3} dq', \quad \vec{E}(\vec{r}) = \int_{\text{fonte}} d\vec{E}(\vec{r}) \qquad (2)$$
+        </div>
+        <p class="text-xs text-slate-500 italic">
+          <strong>Antes de começar:</strong> Para a esfera, adotaremos uma distribuição volumétrica prescrita, com carga imobilizada. Uma esfera metálica isolada em equilíbrio eletrostático, sem campo externo, tem excesso de carga na superfície.
+        </p>
+      </div>
+
+      <!-- EXERCÍCIO 1 -->
+      <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 1</span>
+          <span class="text-[11px] bg-slate-200 text-slate-600 px-2 py-0.5 rounded font-mono">Geometria & Sentido</span>
+        </div>
+        <p class="text-xs sm:text-sm text-slate-700">
           Desenhe uma origem, um ponto-fonte e um ponto de observação. Trace $\vec{r}$, $\vec{r}'$ e $\vec{\imath}$ com as setas corretas. Para $dq' > 0$ indique o sentido de $d\vec{E}$ no ponto de observação. O que muda para $dq' < 0$?
         </p>
-        <p class="text-[11px] text-slate-500 mb-2">Percurso de resolução: geometria $\rightarrow dq' \rightarrow d\vec{E} \rightarrow$ simetria $\rightarrow$ limites de integração $\rightarrow$ interpretação física.</p>
-        <textarea rows="4" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-500 uppercase">Desenvolvimento e justificativa:</label>
+          <textarea rows="3" placeholder="Insira aqui o seu desenvolvimento..." class="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+        </div>
       </div>
     </section>
 
-    <!-- PÁGINA 2: CASO 1 - A esfera em coordenadas esféricas (FIGURA 1 INTERATIVA) -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">CASO 1: ELEMENTO-FONTE</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">A esfera em coordenadas esféricas</h2>
+    <!-- CASO 1: A ESFERA EM COORDENADAS ESFÉRICAS (PÁGINAS 2 A 5) -->
+    <section id="caso1" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+      <div class="border-b border-slate-100 pb-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-amber-600">CASO 1 • ELEMENTO-FONTE & GEOMETRIA</div>
+        <h2 class="text-lg font-bold text-slate-900 mt-1">A esfera em coordenadas esféricas</h2>
+        <p class="text-sm text-slate-600 mt-1">
+          Considere uma esfera de raio $a$, centrada na origem, com densidade volumétrica uniforme $\rho_0$. O ponto de observação é $P = (0, 0, z)$, inicialmente com $z > 0$. Usamos $r'$, $\theta'$ e $\phi'$ para localizar um elemento da fonte. O ângulo polar $\theta'$ é medido a partir de $+z$; o azimute $\phi'$ é medido de $+x$ para $+y$ no plano $xy$.
+        </p>
       </div>
 
-      <p class="text-sm text-slate-700 leading-relaxed mb-6">
-        Considere uma esfera de raio $a$, centrada na origem, com densidade volumétrica uniforme $\rho_0$. O ponto de observação é $P=(0,0,z)$, inicialmente com $z>0$. As coordenadas $r'$, $\theta'$ e $\phi'$ localizam um elemento da fonte. O ângulo polar $\theta'$ é medido a partir de $+z$; o azimute $\phi'$ é medido de $+x$ para $+y$ no plano horizontal $xy$.
-      </p>
-
-      <!-- FIGURA 1 INTERATIVA (THREE.JS) -->
-      <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 mb-6 shadow-inner">
-        <div class="bg-slate-800/90 border-b border-slate-700 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-200">
-          <div class="font-bold flex items-center gap-2 text-white">
+      <!-- FIGURA 1 INTERATIVA (3D) -->
+      <div class="border border-slate-300 rounded-2xl overflow-hidden shadow-sm bg-slate-950 flex flex-col">
+        <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Figura 1 Interativa: Elemento de carga na esfera e separação até P
+            <span class="text-xs font-bold text-white uppercase tracking-wider">Figura 1 Interativa • Elemento de Carga na Esfera e Separação até P</span>
           </div>
-          <span class="text-[11px] text-slate-400">Arraste para rodar a vista • Scroll para zoom</span>
+          <span class="text-[11px] text-slate-400">Arraste para rodar a vista • Roda do mouse para zoom</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12">
-          <!-- Visor 3D Three.js -->
-          <div class="lg:col-span-8 h-[440px] relative">
-            <div id="figura1_canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
-            <!-- Legenda da Figura 1 -->
-            <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur border border-slate-700 p-2.5 rounded-xl text-[11px] text-slate-300 space-y-1">
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-sky-400 inline-block"></span> Observação $P(0,0,z)$ (vetor $\vec{r}$)</div>
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-amber-400 inline-block"></span> Fonte $dq'$ em $(r',\theta',\phi')$ (vetor $\vec{r}'$)</div>
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-rose-500 inline-block"></span> Vetor separação $\vec{\imath} = \vec{r} - \vec{r}'$</div>
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-400 inline-block"></span> Campo elementar $d\vec{E}$</div>
+          <!-- Canvas 3D -->
+          <div class="lg:col-span-8 relative h-[380px] bg-slate-950" id="three_sphere_container">
+            <!-- Badges Flutuantes -->
+            <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur border border-slate-800 p-2 rounded-lg text-[11px] text-slate-300 space-y-1 pointer-events-none">
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-sky-400 inline-block"></span> Observação $P(0,0,z)$</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-amber-400 inline-block"></span> Fonte $dq'$ em $(r', \theta', \phi')$</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-rose-500 inline-block"></span> Separação $\vec{\imath} = \vec{r} - \vec{r}'$</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-emerald-400 inline-block"></span> Campo $d\vec{E}$</div>
             </div>
           </div>
 
-          <!-- Controlo Interativo dos Parâmetros -->
-          <div class="lg:col-span-4 bg-slate-800/50 p-4 border-t lg:border-t-0 lg:border-l border-slate-700 flex flex-col justify-between text-xs text-slate-300">
-            <div class="space-y-3.5">
-              <div class="font-bold text-white border-b border-slate-700 pb-2">Parâmetros Geométricos</div>
+          <!-- Controles da Figura 1 -->
+          <div class="lg:col-span-4 p-4 bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-800 text-xs text-slate-300 space-y-3.5 flex flex-col justify-between">
+            <div class="space-y-2.5">
+              <div class="font-bold text-white text-xs border-b border-slate-800 pb-1">Parâmetros do Ponto e Elemento</div>
               
               <div>
-                <div class="flex justify-between">
-                  <span>Altura $z$ de $P$:</span>
-                  <span id="f1_val_z" class="font-bold text-sky-400">4.50</span>
+                <div class="flex justify-between text-[11px]">
+                  <span>Cota axial $z$ (Ponto $P$):</span>
+                  <span id="s1_val_z" class="font-mono text-sky-400 font-bold">4.20</span>
                 </div>
-                <input type="range" id="f1_slider_z" min="0.1" max="7.0" step="0.05" value="4.50" class="w-full accent-sky-500">
+                <input type="range" id="s1_z" min="0.0" max="6.5" step="0.05" value="4.20" class="w-full slider-accent h-1.5 bg-slate-800 rounded">
               </div>
 
               <div>
-                <div class="flex justify-between">
+                <div class="flex justify-between text-[11px]">
                   <span>Raio da fonte $r'$:</span>
-                  <span id="f1_val_rp" class="font-bold text-amber-400">2.10</span>
+                  <span id="s1_val_rp" class="font-mono text-amber-400 font-bold">2.00</span>
                 </div>
-                <input type="range" id="f1_slider_rp" min="0.2" max="2.7" step="0.05" value="2.10" class="w-full accent-amber-500">
+                <input type="range" id="s1_rp" min="0.2" max="2.5" step="0.05" value="2.00" class="w-full slider-accent h-1.5 bg-slate-800 rounded">
               </div>
 
-              <div>
-                <div class="flex justify-between">
-                  <span>Ângulo polar $\theta'$:</span>
-                  <span id="f1_val_th" class="font-bold text-indigo-400">45°</span>
+              <div class="grid grid-cols-2 gap-2">
+                <div>
+                  <div class="flex justify-between text-[11px]">
+                    <span>Polar $\theta'$:</span>
+                    <span id="s1_val_th" class="font-mono text-indigo-400 font-bold">45°</span>
+                  </div>
+                  <input type="range" id="s1_th" min="5" max="175" step="1" value="45" class="w-full slider-accent h-1.5 bg-slate-800 rounded">
                 </div>
-                <input type="range" id="f1_slider_th" min="5" max="175" step="1" value="45" class="w-full accent-indigo-500">
+                <div>
+                  <div class="flex justify-between text-[11px]">
+                    <span>Azimute $\phi'$:</span>
+                    <span id="s1_val_ph" class="font-mono text-emerald-400 font-bold">30°</span>
+                  </div>
+                  <input type="range" id="s1_ph" min="0" max="360" step="2" value="30" class="w-full slider-accent h-1.5 bg-slate-800 rounded">
+                </div>
               </div>
 
-              <div>
-                <div class="flex justify-between">
-                  <span>Azimute $\phi'$:</span>
-                  <span id="f1_val_ph" class="font-bold text-emerald-400">30°</span>
-                </div>
-                <input type="range" id="f1_slider_ph" min="0" max="360" step="2" value="30" class="w-full accent-emerald-500">
-              </div>
-
-              <div class="pt-2 border-t border-slate-700 space-y-1 text-[11px]">
-                <div class="text-slate-400">Separação calculada:</div>
-                <div class="text-rose-400 font-mono font-bold text-xs" id="f1_txt_sep">|r - r'| = 3.33</div>
-                <div class="text-slate-400 mt-2">Arestas diferenciais:</div>
-                <div class="text-slate-200 font-mono text-[11px] space-y-0.5">
-                  <div>• Radial: $dr'$</div>
-                  <div>• Polar: $r' d\theta'$</div>
-                  <div>• Azimutal: $r' \sin\theta' d\phi'$</div>
-                </div>
-              </div>
+              <label class="flex items-center gap-2 p-2 bg-slate-800/60 rounded border border-slate-700 cursor-pointer text-[11px]">
+                <input type="checkbox" id="s1_pair" class="rounded accent-sky-500">
+                <span>Par oposto ($\phi' + \pi$) [Ex. 6]</span>
+              </label>
             </div>
 
-            <label class="mt-4 p-2 bg-slate-900/60 rounded border border-slate-700 flex items-center gap-2 cursor-pointer text-[11px]">
-              <input type="checkbox" id="f1_check_pair" class="rounded accent-sky-500">
-              <span>Ativar par oposto ($\phi'+\pi$)</span>
-            </label>
+            <!-- Dados calculados -->
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700 text-[11px] space-y-1">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Separação $\imath$:</span>
+                <span id="s1_calc_sep" class="font-mono font-bold text-rose-400">3.12</span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono">
+                $\imath^2 = z^2 + r'^2 - 2zr'\cos\theta'$
+              </div>
+              <div class="text-[10px] text-sky-300 font-mono" id="s1_calc_regime">
+                Regime: Ponto Externo ($z > a$)
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- Exercício 2 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 2</span>
+      <!-- EXERCÍCIOS 2 E 3 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 2</span>
+          <p class="text-xs text-slate-700">
+            Identifique as três arestas diferenciais do elemento. Explique por que a aresta azimutal contém $\sin\theta'$. Multiplique as arestas e obtenha $d\tau'$ e $dq'$.
+          </p>
+          <div class="text-[11px] grid grid-cols-3 gap-1 py-1 text-slate-600">
+            <span class="bg-white p-1 rounded border">radial: <b>$dr'$</b></span>
+            <span class="bg-white p-1 rounded border">polar: <b>$r' d\theta'$</b></span>
+            <span class="bg-white p-1 rounded border">azimutal: <b>$r' \sin\theta' d\phi'$</b></span>
+          </div>
+          <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Identifique as três arestas diferenciais do elemento. Explique por que a aresta azimutal contém $\sin\theta'$. Multiplique as arestas e obtenha $d\tau'$ e $dq'$.
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-2 mb-3 text-xs">
-          <input type="text" placeholder="radial: dr'" class="bg-white border border-slate-300 rounded p-2">
-          <input type="text" placeholder="polar: r' dθ'" class="bg-white border border-slate-300 rounded p-2">
-          <input type="text" placeholder="azimutal: r' sinθ' dφ'" class="bg-white border border-slate-300 rounded p-2">
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 3</span>
+          <p class="text-xs text-slate-700">
+            Escreva os limites de $r'$, $\theta'$ e $\phi'$ para cobrir a esfera uma única vez. Calcule $Q = \iiint_V \rho_0 d\tau'$ e confira sua unidade no SI.
+          </p>
+          <div class="text-[11px] text-slate-500 font-mono bg-white p-1.5 rounded border">
+            $r' \in [0, a]$, $\theta' \in [0, \pi]$, $\phi' \in [0, 2\pi]$
+          </div>
+          <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
       </div>
 
-      <!-- Exercício 3 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 3</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Escreva os limites de $r'$, $\theta'$ e $\phi'$ para cobrir a esfera uma única vez. Calcule $Q = \iiint_V \rho_0 d\tau'$ e confira sua unidade no SI.
+      <!-- GEOMETRIA E SIMETRIA (PÁGINA 3) -->
+      <div class="bg-sky-50/50 p-4 rounded-xl border border-sky-100 space-y-3 text-xs sm:text-sm text-slate-700">
+        <h3 class="font-bold text-sky-950">Da fonte ao ponto de observação:</h3>
+        <p>
+          Durante a integração, $z$ permanece fixo. São as coordenadas da fonte que percorrem a distribuição. Para somar vetores associados a diferentes posições, é conveniente escrever suas componentes em uma mesma base cartesiana:
         </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
+        <div class="text-center font-mono text-xs py-1">
+          $$\vec{r}' = r'\sin\theta'\cos\phi'\hat{x} + r'\sin\theta'\sin\phi'\hat{y} + r'\cos\theta'\hat{z}, \quad \vec{r} = z\hat{z} \qquad (3)$$
+        </div>
+      </div>
+
+      <!-- EXERCÍCIOS 4, 5 E 6 -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 4</span>
+          <p class="text-xs text-slate-700">
+            Subtraia $\vec{r}'$ de $\vec{r}$ para obter $\vec{\imath}$. Em seguida, calcule $\imath^2 = \vec{\imath}\cdot\vec{\imath}$. Mostre que o resultado não depende de $\phi'$.
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 5</span>
+          <p class="text-xs text-slate-700">
+            Utilize a Eq. (2) e sua expressão de $dq'$ para escrever $d\vec{E}$ e $dE_z$. Explique por que o denominador fica elevado a $3/2$ quando a expressão usa as componentes de $\vec{\imath}$.
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+        </div>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 6</span>
+          <p class="text-xs text-slate-700">
+            Compare fontes nos ângulos $\phi'$ e $\phi' + \pi$, com os mesmos $r'$ e $\theta'$. Justifique o cancelamento das componentes $x$ e $y$. O cancelamento elimina o fator $z - r'\cos\theta'$ da componente $z$?
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+        </div>
+      </div>
+
+      <!-- INTEGRAÇÃO ANGULAR E RADIAL (PÁGINAS 4 E 5) -->
+      <div class="border-t border-slate-200 pt-4 space-y-4">
+        <h3 class="text-sm font-bold text-slate-900">Integração Angular & Radial (Somando as Cascas Esféricas)</h3>
+        <p class="text-xs sm:text-sm text-slate-600">
+          Após integrar em $\phi'$, a componente axial pode ser organizada como:
+        </p>
+        <div class="text-center font-mono text-xs sm:text-sm py-1 bg-slate-50 p-2 rounded border">
+          $$E_z(z) = \frac{\rho_0}{2\epsilon_0} \int_0^a r'^2 I(z, r') dr', \quad I(z, r') = \int_0^\pi \frac{(z - r'\cos\theta')\sin\theta'}{(z^2 + r'^2 - 2zr'\cos\theta')^{3/2}} d\theta' \qquad (4)$$
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 7</span>
+            <p class="text-xs text-slate-700">
+              Recupere a Eq. (4) a partir de sua expressão de $dE_z$. Identifique de onde vem o fator 2 e explique por que $r'^2$ permanece na integral radial.
+            </p>
+            <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 8 & 9</span>
+            <p class="text-xs text-slate-700">
+              Com $J(z, r') = \int_0^\pi \frac{\sin\theta'}{\sqrt{z^2 + r'^2 - 2zr'\cos\theta'}} d\theta'$ e $I = -\frac{\partial J}{\partial z}$, diferencie os casos $z > r'$ e $0 < z < r'$.
+            </p>
+            <textarea rows="3" placeholder="I(z, r') para z > r' e z < r'..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+          </div>
+
+          <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercícios 10, 11 & 12</span>
+            <p class="text-xs text-slate-700">
+              Integre radialmente para obter $E(z)$ para $z > a$ e para $0 < z < a$. Avalie os limites $z \to a^-$ e $z \to a^+$, e confira com a Lei de Gauss.
+            </p>
+            <textarea rows="3" placeholder="E(z) externo, interno e verificação..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+          </div>
+        </div>
       </div>
     </section>
 
-    <!-- PÁGINA 3: CASO 1 - Da fonte ao ponto de observação -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">CASO 1: GEOMETRIA</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">Da fonte ao ponto de observação</h2>
-      </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed mb-4">
-        Durante a integração, $z$ permanece fixo. São as coordenadas da fonte que percorrem a distribuição. Para somar vetores associados a diferentes posições, é conveniente escrever suas componentes em uma mesma base cartesiana:
-      </p>
-
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center font-mono text-xs mb-6">
-        $$\vec{r}' = r'\sin\theta'\cos\phi'\hat{x} + r'\sin\theta'\sin\phi'\hat{y} + r'\cos\theta'\hat{z}, \quad \vec{r} = z\hat{z} \tag{3}$$
-      </div>
-
-      <!-- Exercício 4 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 4</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Subtraia $\vec{r}'$ de $\vec{r}$ para obter $\vec{\imath}$. Em seguida, calcule $\imath^2 = \vec{\imath}\cdot\vec{\imath}$. Mostre que o resultado não depende de $\phi'$.
+    <!-- COMPARAÇÃO FÍSICA: ESFERA METÁLICA (PÁGINA 6) -->
+    <section id="metalica" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-5">
+      <div class="border-b border-slate-100 pb-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-rose-600">COMPARAÇÃO FÍSICA • SUPERFICIAL VS VOLUMÉTRICA</div>
+        <h2 class="text-lg font-bold text-slate-900 mt-1">E se a esfera for metálica?</h2>
+        <p class="text-sm text-slate-600 mt-1">
+          Considere agora uma esfera metálica maciça, isolada, em equilíbrio eletrostático, sem cavidades, cargas internas ou campo externo. Seu raio é $a$ e sua carga total é $Q$. Pela simetria esférica, a densidade superficial é uniforme:
         </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-        <p class="text-[11px] text-slate-500 font-semibold mt-2">Conferência geométrica: $\imath^2 = z^2 + r'^2 - 2zr'\cos\theta'$.</p>
+        <div class="text-center font-mono text-xs sm:text-sm py-1">
+          $$\sigma_0 = \frac{Q}{4\pi a^2}, \quad da' = a^2\sin\theta' d\theta' d\phi', \quad dq' = \sigma_0 da' \qquad (6)$$
+        </div>
       </div>
 
-      <!-- Exercício 5 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 5</span>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 13</span>
+          <p class="text-xs text-slate-700">
+            Partindo de $dq'$ superficial e tomando $r'=a$ na geometria da página 3, monte a integral de Coulomb para $E_z$. Mostre que:
+            $$E_z(z) = \frac{\sigma_0 a^2}{2\epsilon_0} I(z, a) \qquad (7)$$
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Utilize a Eq. (2) e sua expressão de $dq'$ para escrever $d\vec{E}$ e $dE_z$. Explique por que o denominador fica elevado a $3/2$ quando a expressão usa as componentes de $\vec{\imath}$.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
 
-      <!-- Exercício 6 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 6</span>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 14</span>
+          <p class="text-xs text-slate-700">
+            Utilize a integral angular para obter os campos nos intervalos $0 < z < a$ e $z > a$. Compare com a esfera volumétrica de mesma carga total. Em qual região os modelos se distinguem?
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Compare fontes nos ângulos $\phi'$ e $\phi'+\pi$, com os mesmos $r'$ e $\theta'$. Justifique o cancelamento das componentes $x$ e $y$. O cancelamento permite eliminar o fator $z - r'\cos\theta'$ da componente $z$? Explique.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-        <p class="text-[11px] text-amber-700 mt-2 font-medium">Atenção: a simetria da distribuição determina a direção do campo total. Ela não transforma cada contribuição em um vetor paralelo ao eixo $z$.</p>
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 15</span>
+          <p class="text-xs text-slate-700">
+            Calcule $E_z(a^-)$ e $E_z(a^+)$. Compare a diferença com $\sigma_0/\epsilon_0$. Por que os limites coincidem no modelo volumétrico, mas diferem no modelo superficial?
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+        </div>
       </div>
     </section>
 
-    <!-- PÁGINA 4: CASO 1 - Somando as contribuições de uma casca -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">CASO 1: INTEGRAÇÃO ANGULAR</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">Somando as contribuições de uma casca</h2>
-      </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed mb-4">
-        Após integrar em $\phi'$, a componente axial pode ser organizada como:
-      </p>
-
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center font-mono text-xs mb-6">
-        $$E_z(z) = \frac{\rho_0}{2\varepsilon_0}\int_0^a r'^2 I(z,r')dr', \quad I(z,r') = \int_0^\pi \frac{(z - r'\cos\theta')\sin\theta'}{(z^2 + r'^2 - 2zr'\cos\theta')^{3/2}}d\theta' \tag{4}$$
-      </div>
-
-      <!-- Exercício 7 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 7</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Recupere a Eq. (4) a partir de sua expressão de $dE_z$. Identifique de onde vem o fator 2 e explique por que $r'^2$ permanece na integral radial.
+    <!-- CASO 2: CAMPO NO EIXO DE UMA ESPIRA CIRCULAR (PÁGINAS 7 E 8) -->
+    <section id="caso2" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+      <div class="border-b border-slate-100 pb-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-emerald-600">CASO 2 • ELEMENTO-FONTE & INTEGRAÇÃO</div>
+        <h2 class="text-lg font-bold text-slate-900 mt-1">Campo no eixo de uma espira circular</h2>
+        <p class="text-sm text-slate-600 mt-1">
+          Considere uma espira de raio $b$, centrada na origem e contida no plano $xy$, com densidade linear uniforme $\lambda_0$. Calcule o campo em $P = (0, 0, z)$, no eixo que passa pelo centro e é perpendicular ao plano.
         </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
       </div>
 
-      <div class="bg-sky-50/70 border border-sky-100 rounded-xl p-4 text-xs text-slate-700 mb-4">
-        <p>Para resolver a integral angular, considere a função auxiliar:</p>
-        <div class="bg-white p-2.5 rounded border border-sky-200 font-mono text-center my-2">
-          $$J(z,r') = \int_0^\pi \frac{\sin\theta'}{\sqrt{z^2 + r'^2 - 2zr'\cos\theta'}}d\theta', \quad I(z,r') = -\frac{\partial J}{\partial z} \quad (z \ne r') \tag{5}$$
-        </div>
-      </div>
-
-      <!-- Exercício 8 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 8</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Verifique a identidade por derivação do integrando. Calcule $J$ com a substituição $u = z^2 + r'^2 - 2zr'\cos\theta'$. Escreva $du$ e os limites transformados. Na raiz do limite inferior, mantenha $|z - r'|$.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
-
-      <!-- Exercício 9 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 9</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          A partir de sua expressão de $J$, diferencie separadamente os casos $z > r'$ e $0 < z < r'$. Complete:
-        </p>
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3 text-xs">
-          <input type="text" placeholder="I(z,r') para z > r'" class="bg-white border border-slate-300 rounded p-2">
-          <input type="text" placeholder="I(z,r') para 0 < z < r'" class="bg-white border border-slate-300 rounded p-2">
-        </div>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-        <p class="text-[11px] text-slate-500 mt-2">A derivação sob a integral é usada nos intervalos $z \ne r'$. O ponto $r' = z$ é tratado como limite na integração radial; seu valor isolado não altera a integral de volume.</p>
-      </div>
-    </section>
-
-    <!-- PÁGINA 5: CASO 1 - Campo externo e campo interno -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-amber-600 uppercase tracking-wider">CASO 1: INTEGRAÇÃO RADIAL</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">Campo externo e campo interno</h2>
-      </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed mb-6">
-        A integral angular já incorpora o efeito de uma casca de raio $r'$. Agora, a posição de $P$ em relação a cada casca determina qual expressão de $I$ deve ser usada.
-      </p>
-
-      <!-- Exercício 10 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 10</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Para $z > a$, todas as cascas satisfazem $r' < z$. Substitua o primeiro caso de $I$ na Eq. (4), integre de $0$ a $a$ e escreva $\vec{E}(z)$ em termos de $\rho_0$ e em termos da carga total $Q$.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
-
-      <!-- Exercício 11 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 11</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Para $0 < z < a$, divida a integral radial nos intervalos $0 < r' < z$ e $z < r' < a$. Qual intervalo contribui para o campo resultante? Efetue a integral e escreva $\vec{E}(z)$.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
-
-      <!-- Exercício 12 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 12</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Compare os limites $z \rightarrow a^-$ e $z \rightarrow a^+$. Determine o campo no centro usando simetria ou o limite $z \rightarrow 0^+$. Verifique a dimensão de $\rho_0 z/\varepsilon_0$. Se $\rho_0$ mudar de sinal, o que acontece com o vetor campo?
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-        <p class="text-[11px] text-slate-500 mt-2"><b>Conferência independente:</b> Depois de concluir pela lei de Coulomb, use uma superfície gaussiana esférica para verificar o resultado. Explique por que o uso inicial da lei de Gauss não exercitaria a montagem da integral solicitada aqui.</p>
-      </div>
-    </section>
-
-    <!-- PÁGINA 6: Comparação Física - E se a esfera for metálica? -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-rose-600 uppercase tracking-wider">COMPARAÇÃO FÍSICA</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">E se a esfera for metálica?</h2>
-      </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed mb-4">
-        Considere agora uma esfera metálica maciça, isolada, em equilíbrio eletrostático, sem cavidades, cargas internas ou campo externo. Seu raio é $a$ e sua carga total é $Q$. Pela simetria esférica, a densidade superficial é uniforme:
-      </p>
-
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-3 text-center font-mono text-xs mb-4">
-        $$\sigma_0 = \frac{Q}{4\pi a^2}, \quad da' = a^2\sin\theta' d\theta' d\phi', \quad dq' = \sigma_0 da' \tag{6}$$
-      </div>
-
-      <p class="text-xs text-slate-600 mb-6">
-        Para comparar com o caso anterior, escolha o mesmo $Q = \frac{4}{3}\pi\rho_0 a^3$. Nessa comparação, $\rho_0$ serve apenas para parametrizar $Q$; não representa uma densidade volumétrica de excesso de carga no metal em equilíbrio.
-      </p>
-
-      <!-- Exercício 13 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 13</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Partindo de $dq'$ superficial e tomando $r'=a$ na geometria da página 3, monte a integral de Coulomb para $E_z$. Mostre que ela se reduz a:
-        </p>
-        <div class="bg-white p-2 rounded border border-slate-200 text-center font-mono text-xs mb-3">
-          $$E_z(z) = \frac{\sigma_0 a^2}{2\varepsilon_0}I(z,a) \tag{7}$$
-        </div>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
-
-      <!-- Exercício 14 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 14</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Utilize a integral angular da página 4 para obter os campos nos intervalos $0 < z < a$ e $z > a$. Compare-os com os da esfera volumétrica de mesma carga total. Em qual região os modelos podem ser distinguidos pelo campo?
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
-
-      <!-- Exercício 15 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 15</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Calcule $E_z(a^-)$ e $E_z(a^+)$. Compare a diferença com $\sigma_0/\varepsilon_0$. Por que os limites coincidem no modelo volumétrico, mas diferem no modelo com carga superficial?
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-        <p class="text-[11px] text-rose-700 font-medium mt-2">Na superfície idealmente carregada, os limites interno e externo são distintos. Não atribua automaticamente ao campo "na superfície" a média desses limites.</p>
-      </div>
-    </section>
-
-    <!-- PÁGINA 7: CASO 2 - Campo no eixo de uma espira circular (FIGURA 2 INTERATIVA) -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">CASO 2: ELEMENTO-FONTE</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">Campo no eixo de uma espira circular</h2>
-      </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed mb-6">
-        Considere uma espira de raio $b$, centrada na origem e contida no plano $xy$, com densidade linear uniforme $\lambda_0$. Calcule o campo em $P=(0,0,z)$, no eixo que passa pelo centro e é perpendicular ao plano. Para a primeira resolução, adote $z>0$; depois examine $z=0$ e $z<0$.
-      </p>
-
-      <!-- FIGURA 2 INTERATIVA (THREE.JS) -->
-      <div class="border border-slate-200 rounded-2xl overflow-hidden bg-slate-900 mb-6 shadow-inner">
-        <div class="bg-slate-800/90 border-b border-slate-700 px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-200">
-          <div class="font-bold flex items-center gap-2 text-white">
+      <!-- FIGURA 2 INTERATIVA (3D) -->
+      <div class="border border-slate-300 rounded-2xl overflow-hidden shadow-sm bg-slate-950 flex flex-col">
+        <div class="bg-slate-900 px-4 py-2.5 border-b border-slate-800 flex flex-wrap items-center justify-between gap-2">
+          <div class="flex items-center gap-2">
             <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-            Figura 2 Interativa: Dois elementos diametralmente opostos na espira circular
+            <span class="text-xs font-bold text-white uppercase tracking-wider">Figura 2 Interativa • Elementos Diametrais na Espira e Cancelamento</span>
           </div>
-          <span class="text-[11px] text-slate-400">Arraste para rodar a vista • Scroll para zoom</span>
+          <span class="text-[11px] text-slate-400">Arraste para rodar a vista • Roda do mouse para zoom</span>
         </div>
 
         <div class="grid grid-cols-1 lg:grid-cols-12">
-          <!-- Visor 3D Three.js -->
-          <div class="lg:col-span-8 h-[440px] relative">
-            <div id="figura2_canvas" class="w-full h-full cursor-grab active:cursor-grabbing"></div>
-            <!-- Legenda da Figura 2 -->
-            <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur border border-slate-700 p-2.5 rounded-xl text-[11px] text-slate-300 space-y-1">
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-amber-400 inline-block"></span> Espira de raio $b$ no plano $xy$</div>
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-rose-500 inline-block"></span> Vetores de separação $\vec{\imath}$ dos pares opostos</div>
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-emerald-400 inline-block"></span> Contribuições individuais $d\vec{E}$</div>
-              <div class="flex items-center gap-1.5"><span class="w-3 h-0.5 bg-sky-400 inline-block"></span> Campo resultante ao longo de $+z$ ($dE_z$)</div>
+          <!-- Canvas 3D -->
+          <div class="lg:col-span-8 relative h-[380px] bg-slate-950" id="three_ring_container">
+            <div class="absolute top-3 left-3 bg-slate-900/80 backdrop-blur border border-slate-800 p-2 rounded-lg text-[11px] text-slate-300 space-y-1 pointer-events-none">
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-sky-400 inline-block"></span> Observador $P(0,0,z)$</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-amber-400 inline-block"></span> Fontes $dq' = \lambda_0 b d\phi'$ e par oposto</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-rose-500 inline-block"></span> Separação $\vec{\imath}$ (setas roxas no original)</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-emerald-400 inline-block"></span> Campos $d\vec{E}$ individuais</div>
+              <div class="flex items-center gap-1.5"><span class="w-2.5 h-0.5 bg-sky-300 inline-block"></span> Resultante axial $dE_z$</div>
             </div>
           </div>
 
-          <!-- Controlo Interativo dos Parâmetros -->
-          <div class="lg:col-span-4 bg-slate-800/50 p-4 border-t lg:border-t-0 lg:border-l border-slate-700 flex flex-col justify-between text-xs text-slate-300">
-            <div class="space-y-4">
-              <div class="font-bold text-white border-b border-slate-700 pb-2">Parâmetros da Espira</div>
+          <!-- Controles da Figura 2 -->
+          <div class="lg:col-span-4 p-4 bg-slate-900 border-t lg:border-t-0 lg:border-l border-slate-800 text-xs text-slate-300 space-y-3.5 flex flex-col justify-between">
+            <div class="space-y-2.5">
+              <div class="font-bold text-white text-xs border-b border-slate-800 pb-1">Parâmetros da Espira</div>
               
               <div>
-                <div class="flex justify-between">
-                  <span>Altura $z$ no eixo:</span>
-                  <span id="f2_val_z" class="font-bold text-sky-400">2.60</span>
+                <div class="flex justify-between text-[11px]">
+                  <span>Altura axial $z$:</span>
+                  <span id="s2_val_z" class="font-mono text-sky-400 font-bold">2.20</span>
                 </div>
-                <input type="range" id="f2_slider_z" min="-5.0" max="5.0" step="0.1" value="2.60" class="w-full accent-sky-500">
+                <input type="range" id="s2_z" min="-5.0" max="5.0" step="0.1" value="2.20" class="w-full slider-accent h-1.5 bg-slate-800 rounded">
               </div>
 
               <div>
-                <div class="flex justify-between">
+                <div class="flex justify-between text-[11px]">
                   <span>Raio da espira $b$:</span>
-                  <span id="f2_val_b" class="font-bold text-amber-400">2.50</span>
+                  <span id="s2_val_b" class="font-mono text-amber-400 font-bold">2.40</span>
                 </div>
-                <input type="range" id="f2_slider_b" min="1.0" max="4.0" step="0.1" value="2.50" class="w-full accent-amber-500">
+                <input type="range" id="s2_b" min="1.0" max="3.5" step="0.1" value="2.40" class="w-full slider-accent h-1.5 bg-slate-800 rounded">
               </div>
 
               <div>
-                <div class="flex justify-between">
-                  <span>Posição angular $\phi'$:</span>
-                  <span id="f2_val_ph" class="font-bold text-emerald-400">45°</span>
+                <div class="flex justify-between text-[11px]">
+                  <span>Posição do elemento $\phi'$:</span>
+                  <span id="s2_val_ph" class="font-mono text-emerald-400 font-bold">45°</span>
                 </div>
-                <input type="range" id="f2_slider_ph" min="0" max="360" step="2" value="45" class="w-full accent-emerald-500">
+                <input type="range" id="s2_ph" min="0" max="360" step="2" value="45" class="w-full slider-accent h-1.5 bg-slate-800 rounded">
               </div>
+            </div>
 
-              <div class="pt-2 border-t border-slate-700 space-y-1.5 text-[11px]">
-                <div class="text-slate-400">Propriedade de simetria:</div>
-                <div class="text-rose-400 font-mono font-bold" id="f2_txt_sep">Separação r = √(b² + z²) = 3.61</div>
-                <div class="text-slate-300">
-                  Como todos os pontos da espira distam igualmente de $P$, os campos de fontes diametralmente opostas cancelam-se no plano $xy$.
-                </div>
-                <div class="p-2 bg-slate-900/60 rounded border border-slate-700 text-amber-300 font-mono mt-1">
-                  Máximo $|E_z|$ em: $z = \pm b/\sqrt{2}$
-                </div>
+            <!-- Dados calculados -->
+            <div class="p-2.5 rounded bg-slate-800/80 border border-slate-700 text-[11px] space-y-1">
+              <div class="flex justify-between">
+                <span class="text-slate-400">Distância constante $\imath$:</span>
+                <span id="s2_calc_sep" class="font-mono font-bold text-rose-400">3.26</span>
+              </div>
+              <div class="text-[10px] text-slate-400 font-mono">
+                $\imath = \sqrt{b^2 + z^2}$ (igual para todas as fontes)
+              </div>
+              <div class="flex justify-between border-t border-slate-700 pt-1 text-[10px]">
+                <span class="text-amber-400">Ponto de máximo $|E_z|$:</span>
+                <span id="s2_calc_zmax" class="font-mono font-bold text-white">z = ± 1.70</span>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Exercício 16 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 16</span>
+      <!-- EXERCÍCIOS 16 A 20 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 16 & 17</span>
+          <p class="text-xs text-slate-700">
+            Parametrize a posição por $\phi'$. Escreva $\vec{r}'(\phi')$, $dl'$ e $dq'$. Calcule $\vec{\imath}$ e $\imath$. Mostre que todas as fontes têm a mesma distância a $P$. Seus vetores separação são iguais?
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Parametrize a posição da fonte por $\phi'$. Escreva $\vec{r}'(\phi')$, $dl'$ e $dq'$. Explique por que não há integrações em raio e altura. Em coordenadas esféricas, quais valores ficam fixos para $r'$ e $\theta'$?
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
 
-      <!-- Exercício 17 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 17</span>
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 18, 19 & 20</span>
+          <p class="text-xs text-slate-700">
+            Mostre o cancelamento transversal pelas integrais em $\cos\phi'$ e $\sin\phi'$. Deduza a integral axial:
+            $$E_z(z) = \frac{\lambda_0 b}{4\pi\epsilon_0} \int_0^{2\pi} \frac{z}{(b^2 + z^2)^{3/2}} d\phi' \qquad (8)$$
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento e projeção cos α..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Calcule $\vec{\imath}$ e $\imath$. Mostre que todas as fontes da espira têm a mesma distância a $P$. Isso significa que seus vetores separação também são iguais? Justifique.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
       </div>
     </section>
 
-    <!-- PÁGINA 8: CASO 2 - Projeção e Integração -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-emerald-600 uppercase tracking-wider">CASO 2: PROJEÇÃO E INTEGRAÇÃO</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">Somando vetores ao longo da espira</h2>
-      </div>
-
-      <p class="text-sm text-slate-700 leading-relaxed mb-6">
-        O elemento de comprimento usado na carga é o escalar $dl' = b\,d\phi'$. A orientação da contribuição de campo aparece em $\hat{\imath}$. Usar o vetor tangente $d\vec{l}'$ no lugar de $dl'$ confundiria a geometria da fonte com a direção do campo elétrico.
-      </p>
-
-      <!-- Exercício 18 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 18</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Insira $dq' = \lambda_0 b\,d\phi'$ na Eq. (2). Escreva as três componentes de $d\vec{E}$. Para as componentes transversais, examine as integrais de $\cos\phi'$ e $\sin\phi'$ entre $0$ e $2\pi$.
+    <!-- SÍNTESE, GRÁFICOS E INTERPRETAÇÃO (PÁGINA 9) -->
+    <section id="sintese" class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-6">
+      <div class="border-b border-slate-100 pb-3">
+        <div class="text-xs font-bold uppercase tracking-wider text-indigo-600">INTERPRETAÇÃO, GENERALIZAÇÃO & GRÁFICOS</div>
+        <h2 class="text-lg font-bold text-slate-900 mt-1">O que os resultados permitem concluir?</h2>
+        <p class="text-sm text-slate-600 mt-1">
+          Análise dos limites assintóticos, ponto crítico de campo máximo na espira e comparação visual das curvas de campo elétrico $E_z(z)$ para as três distribuições de carga estudadas.
         </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
       </div>
 
-      <!-- Exercício 19 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 19</span>
+      <!-- EXERCÍCIOS 21 E 22 -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 21</span>
+          <p class="text-xs text-slate-700">
+            Use o resultado da espira para calcular $E(0)$ e verificar a relação entre $E_z(-z)$ e $E_z(z)$. Para $|z| \gg b$ obtenha a aproximação dominante e compare com o campo de uma carga pontual $Q$.
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Mostre que a componente axial total pode ser escrita como:
-        </p>
-        <div class="bg-white p-2 rounded border border-slate-200 text-center font-mono text-xs mb-3">
-          $$E_z(z) = \frac{\lambda_0 b}{4\pi\varepsilon_0}\int_0^{2\pi} \frac{z}{(b^2 + z^2)^{3/2}}d\phi' \tag{8}$$
+
+        <div class="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-2">
+          <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 22</span>
+          <p class="text-xs text-slate-700">
+            Para $\lambda_0 > 0$ e $z \ge 0$, diferencie $z(b^2 + z^2)^{-3/2}$, encontre o ponto crítico e mostre onde o módulo do campo atinge seu máximo absoluto ($z = b/\sqrt{2}$).
+          </p>
+          <textarea rows="3" placeholder="Desenvolvimento da derivada..." class="w-full text-xs p-2 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
         </div>
-        <p class="text-xs text-slate-700 mb-2">Identifique as grandezas que são constantes nessa integração. Conclua o cálculo e escreva $\vec{E}(z)$ primeiro em termos de $\lambda_0$ e depois em termos de $Q = 2\pi b\lambda_0$.</p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
       </div>
 
-      <!-- Exercício 20 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 20</span>
+      <!-- EXERCÍCIO 23: GRÁFICO DINÂMICO COMPARATIVO -->
+      <div class="border border-slate-200 rounded-2xl p-5 bg-slate-50 space-y-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
+          <div>
+            <span class="text-xs font-bold uppercase tracking-wider text-sky-700">Exercício 23 • Visualização Interativa</span>
+            <h3 class="text-sm font-bold text-slate-900">Curvas de $E_z$ em função de $z \ge 0$</h3>
+          </div>
+          <div class="flex flex-wrap gap-2 text-xs">
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-sky-100 text-sky-800 font-semibold">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span> Esfera Volumétrica
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-rose-100 text-rose-800 font-semibold">
+              <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> Esfera Metálica
+            </span>
+            <span class="inline-flex items-center gap-1.5 px-2 py-1 rounded bg-emerald-100 text-emerald-800 font-semibold">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> Espira Circular
+            </span>
+          </div>
         </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Reescreva a projeção como $dE_z = dE\cos\alpha$, sendo $\alpha$ o ângulo entre $\vec{\imath}$ e $+z$. Determine $\cos\alpha$ e explique a origem do fator adicional de distância no denominador de $dE_z$.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-        <p class="text-[11px] text-slate-500 mt-2 font-medium">Verificação: se a carga linear for positiva e $z > 0$, o campo resultante deve apontar para $+z$. Compare essa previsão com o sinal de sua expressão.</p>
-      </div>
-    </section>
 
-    <!-- PÁGINA 9: Interpretação, Generalização e Gráficos Comparativos -->
-    <section class="bg-white border border-slate-200 rounded-2xl p-6 md:p-8 shadow-sm">
-      <div class="border-b border-slate-100 pb-4 mb-5">
-        <span class="text-xs font-bold text-indigo-600 uppercase tracking-wider">INTERPRETAÇÃO E GENERALIZAÇÃO</span>
-        <h2 class="text-2xl font-bold text-slate-900 mt-1">O que os resultados permitem concluir?</h2>
-      </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <div class="lg:col-span-8 bg-white p-3 rounded-xl border border-slate-200 shadow-inner">
+            <canvas id="canvasPlots" class="w-full h-[280px]"></canvas>
+          </div>
+          <div class="lg:col-span-4 flex flex-col justify-between text-xs space-y-3">
+            <div class="space-y-3">
+              <div>
+                <label class="font-semibold text-slate-700 block">Raio $a$ (Esferas):</label>
+                <div class="flex items-center gap-2">
+                  <input type="range" id="plot_raio_a" min="1.0" max="3.5" step="0.1" value="2.0" class="w-full slider-accent h-1.5 bg-slate-200 rounded">
+                  <span id="plot_val_a" class="font-mono font-bold text-sky-700">2.0</span>
+                </div>
+              </div>
 
-      <!-- Exercício 21 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-4">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 21</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Use o resultado da espira para calcular $\vec{E}(0)$ e verificar a relação entre $E_z(-z)$ e $E_z(z)$. Para $|z| \gg b$, obtenha a aproximação dominante e compare-a com o campo de uma carga pontual $Q$.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
+              <div>
+                <label class="font-semibold text-slate-700 block">Raio $b$ (Espira):</label>
+                <div class="flex items-center gap-2">
+                  <input type="range" id="plot_raio_b" min="1.0" max="3.5" step="0.1" value="2.0" class="w-full slider-accent h-1.5 bg-slate-200 rounded">
+                  <span id="plot_val_b" class="font-mono font-bold text-emerald-700">2.0</span>
+                </div>
+              </div>
+            </div>
 
-      <!-- Exercício 22 -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 22</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Para $\lambda_0 > 0$ e $z \ge 0$, investigue onde o módulo do campo da espira atinge seu máximo. Diferencie $z(b^2 + z^2)^{-3/2}$, encontre o ponto crítico e verifique os valores nos extremos $z=0$ e $z \rightarrow \infty$.
-        </p>
-        <textarea rows="3" placeholder="Desenvolvimento e justificativa..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs"></textarea>
-      </div>
-
-      <!-- Exercício 23 e Gráfico Interativo -->
-      <div class="bg-slate-50 border border-slate-200 rounded-xl p-5 mb-6">
-        <div class="flex items-center gap-2 mb-2">
-          <span class="bg-sky-600 text-white text-xs font-bold px-2 py-0.5 rounded">EXERCÍCIO 23</span>
-        </div>
-        <p class="text-xs text-slate-700 font-medium mb-3">
-          Esboce $E_z$ em função de $z \ge 0$ para a esfera volumétrica, a esfera metálica e a espira. Use desenhos separados e marque as escalas $a$ ou $b$. Identifique continuidade, salto e comportamento distante, quando aplicáveis.
-        </p>
-
-        <!-- GRÁFICO INTERATIVO DE COMPARAÇÃO -->
-        <div class="bg-white border border-slate-200 rounded-xl p-4 shadow-sm mt-4">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-3 mb-3">
-            <span class="font-bold text-xs text-slate-800">Visualizador Gráfico Interativo de $E_z(z)$ vs $z$</span>
-            <div class="flex items-center gap-4 text-xs">
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" id="plot_show_vol" checked class="accent-sky-600">
-                <span class="text-sky-700 font-medium">Esfera Volumétrica</span>
-              </label>
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" id="plot_show_metal" checked class="accent-rose-600">
-                <span class="text-rose-700 font-medium">Esfera Metálica</span>
-              </label>
-              <label class="flex items-center gap-1.5 cursor-pointer">
-                <input type="checkbox" id="plot_show_ring" checked class="accent-emerald-600">
-                <span class="text-emerald-700 font-medium">Espira Circular</span>
-              </label>
+            <div class="bg-white p-3 rounded-lg border border-slate-200 text-[11px] text-slate-600 space-y-1.5">
+              <div><b>Esfera Volumétrica:</b> Contínua em $z = a$.</div>
+              <div><b>Esfera Metálica:</b> Salto finito $\Delta E = \sigma_0/\epsilon_0$ em $z = a$.</div>
+              <div><b>Espira:</b> Nulo no centro ($z=0$), pico em $z = b/\sqrt{2}$.</div>
             </div>
           </div>
-
-          <div class="relative w-full h-[320px]">
-            <canvas id="compPlotCanvas" class="w-full h-full"></canvas>
-          </div>
         </div>
 
-        <textarea rows="3" placeholder="Desenvolvimento, notas sobre continuidade, descontinuidade de Gauss e comportamento assintótico..." class="w-full bg-white border border-slate-300 rounded-lg p-3 text-xs mt-3"></textarea>
+        <div class="space-y-1">
+          <label class="text-[11px] font-bold text-slate-500 uppercase">Conclusões sobre continuidade e salto:</label>
+          <textarea rows="2" placeholder="Descreva aqui o comportamento de continuidade em a e o salto da densidade superficial..." class="w-full text-xs p-2.5 rounded-lg border border-slate-300 focus:ring-1 focus:ring-sky-500 outline-none"></textarea>
+        </div>
       </div>
 
-      <!-- Síntese Individual do Aluno -->
-      <div class="bg-amber-50/70 border border-amber-200 rounded-xl p-4 text-xs text-slate-700 space-y-2">
-        <p class="font-bold text-amber-900">Síntese individual:</p>
-        <p>Revise seus cálculos: distinguiu fonte e observação? Usou o elemento de carga adequado? Projetou antes de somar? Declarou os limites? Conferiu unidades, sinais e casos-limite?</p>
-        <p class="text-[11px] text-slate-500 pt-2 border-t border-amber-200">
-          Material instrucional sem pontuação. Organização inspirada no modelo OHQ fornecido pelo docente; notação baseada no recorte de David J. Griffiths fornecido. Complemento interativo executável localmente sem necessidade de ligação à Internet.
+      <!-- SÍNTESE INDIVIDUAL -->
+      <div class="bg-amber-50/70 p-4 rounded-xl border border-amber-200 text-xs text-amber-950 space-y-1.5">
+        <h4 class="font-bold text-amber-900 uppercase">Síntese Individual:</h4>
+        <p>
+          Revise seus cálculos: distinguiu fonte e observação? Usou o elemento de carga adequado? Projetou antes de somar? Declarou os limites? Conferiu unidades, sinais e casos-limite?
+        </p>
+        <p class="text-[11px] text-amber-800">
+          Material instrucional sem pontuação. Organização inspirada no modelo OHQ fornecido pelo docente; notação baseada no recorte de David J. Griffiths fornecido.
         </p>
       </div>
     </section>
 
   </main>
 
-  <!-- LÓGICA E MOTORES GRÁFICOS (THREE.JS E CANVAS 2D) -->
+  <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+    Licenciatura em Física • Universidade do Estado do Pará (UEPA) • Guia Didático Interativo
+  </footer>
+
+  <!-- SCRIPT DE INTERATIVIDADE THREE.JS E GRÁFICOS -->
   <script>
-    // ==========================================
-    // 1. FIGURA 1: ELEMENTO DE VOLUME NA ESFERA
-    // ==========================================
-    (function initFigura1() {
-      const container = document.getElementById('figura1_canvas');
-      const zSlider = document.getElementById('f1_slider_z');
-      const rpSlider = document.getElementById('f1_slider_rp');
-      const thSlider = document.getElementById('f1_slider_th');
-      const phSlider = document.getElementById('f1_slider_ph');
-      const pairCheck = document.getElementById('f1_check_pair');
-
-      const zVal = document.getElementById('f1_val_z');
-      const rpVal = document.getElementById('f1_val_rp');
-      const thVal = document.getElementById('f1_val_th');
-      const phVal = document.getElementById('f1_val_ph');
-      const sepTxt = document.getElementById('f1_txt_sep');
-
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0f172a);
-
-      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-      camera.position.set(6, 4, 6);
-
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      container.appendChild(renderer.domElement);
-
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-
-      // Luzes
-      scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-      const dLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      dLight.position.set(5, 10, 7);
-      scene.add(dLight);
-
-      // Eixos e Grelha
-      const makeLine = (p1, p2, color, dashed = false) => {
-        const geom = new THREE.BufferGeometry().setFromPoints([p1, p2]);
-        const mat = dashed 
-          ? new THREE.LineDashedMaterial({ color, dashSize: 0.2, gapSize: 0.1 })
-          : new THREE.LineBasicMaterial({ color, linewidth: 2 });
-        return new THREE.Line(geom, mat);
-      };
-
-      const axes = new THREE.Group();
-      axes.add(makeLine(new THREE.Vector3(-4,0,0), new THREE.Vector3(4,0,0), 0x64748b)); // X
-      axes.add(makeLine(new THREE.Vector3(0,-4,0), new THREE.Vector3(0,4,0), 0x64748b)); // Y
-      axes.add(makeLine(new THREE.Vector3(0,0,-1), new THREE.Vector3(0,0,7), 0x38bdf8)); // Z
-      scene.add(axes);
-
-      const grid = new THREE.GridHelper(8, 16, 0x334155, 0x1e293b);
-      grid.rotation.x = Math.PI / 2;
-      scene.add(grid);
-
-      // Esfera aramada (raio a = 2.8)
-      const sphereWire = new THREE.Mesh(
-        new THREE.SphereGeometry(2.8, 24, 16),
-        new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.15 })
-      );
-      scene.add(sphereWire);
-
-      // Ponto de observação P
-      const pMesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
-      scene.add(pMesh);
-
-      // Elemento de volume dq
-      const dqMesh = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
-      const dqMeshPair = new THREE.Mesh(new THREE.BoxGeometry(0.28, 0.28, 0.28), new THREE.MeshStandardMaterial({ color: 0xd97706, transparent: true, opacity: 0.6 }));
-      scene.add(dqMesh, dqMeshPair);
-
-      // Linhas vetoriais
-      const lineR = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x38bdf8);
-      const lineRp = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xfbbf24);
-      const lineSep = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e);
-      const lineField = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981);
-
-      const lineRpPair = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf59e0b, true);
-      const lineSepPair = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e, true);
-      const lineFieldPair = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981, true);
-
-      scene.add(lineR, lineRp, lineSep, lineField, lineRpPair, lineSepPair, lineFieldPair);
-
-      function setLinePoints(line, p1, p2) {
-        line.geometry.setFromPoints([p1, p2]);
-        line.geometry.attributes.position.needsUpdate = true;
-        if (line.computeLineDistances) line.computeLineDistances();
-      }
-
-      function update() {
-        const z = parseFloat(zSlider.value);
-        const rp = parseFloat(rpSlider.value);
-        const th = (parseFloat(thSlider.value) * Math.PI) / 180;
-        const ph = (parseFloat(phSlider.value) * Math.PI) / 180;
-        const showPair = pairCheck.checked;
-
-        zVal.textContent = z.toFixed(2);
-        rpVal.textContent = rp.toFixed(2);
-        thVal.textContent = thSlider.value + '°';
-        phVal.textContent = phSlider.value + '°';
-
-        // Posição de P(0,0,z)
-        const posP = new THREE.Vector3(0, 0, z);
-        pMesh.position.copy(posP);
-        setLinePoints(lineR, new THREE.Vector3(0, 0, 0), posP);
-
-        // Posição da fonte
-        const xp = rp * Math.sin(th) * Math.cos(ph);
-        const yp = rp * Math.sin(th) * Math.sin(ph);
-        const zp = rp * Math.cos(th);
-        const posFonte = new THREE.Vector3(xp, yp, zp);
-
-        dqMesh.position.copy(posFonte);
-        setLinePoints(lineRp, new THREE.Vector3(0, 0, 0), posFonte);
-        setLinePoints(lineSep, posFonte, posP);
-
-        const sepVec = new THREE.Vector3().subVectors(posP, posFonte);
-        sepTxt.textContent = `|r - r'| = ${sepVec.length().toFixed(3)}`;
-
-        const dE_dir = sepVec.clone().normalize().multiplyScalar(1.2);
-        setLinePoints(lineField, posP, new THREE.Vector3().addVectors(posP, dE_dir));
-
-        if (showPair) {
-          dqMeshPair.visible = true;
-          lineRpPair.visible = true;
-          lineSepPair.visible = true;
-          lineFieldPair.visible = true;
-
-          const ph2 = ph + Math.PI;
-          const posFonte2 = new THREE.Vector3(rp * Math.sin(th) * Math.cos(ph2), rp * Math.sin(th) * Math.sin(ph2), zp);
-          dqMeshPair.position.copy(posFonte2);
-
-          setLinePoints(lineRpPair, new THREE.Vector3(0,0,0), posFonte2);
-          setLinePoints(lineSepPair, posFonte2, posP);
-
-          const sepVec2 = new THREE.Vector3().subVectors(posP, posFonte2);
-          const dE_dir2 = sepVec2.clone().normalize().multiplyScalar(1.2);
-          setLinePoints(lineFieldPair, posP, new THREE.Vector3().addVectors(posP, dE_dir2));
-        } else {
-          dqMeshPair.visible = false;
-          lineRpPair.visible = false;
-          lineSepPair.visible = false;
-          lineFieldPair.visible = false;
-        }
-      }
-
-      [zSlider, rpSlider, thSlider, phSlider, pairCheck].forEach(el => el.addEventListener('input', update));
-
-      window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-      });
-
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-      }
-      update();
-      animate();
-    })();
-
-    // ==========================================
-    // 2. FIGURA 2: ESPIRA CIRCULAR NO PLANO XY
-    // ==========================================
-    (function initFigura2() {
-      const container = document.getElementById('figura2_canvas');
-      const zSlider = document.getElementById('f2_slider_z');
-      const bSlider = document.getElementById('f2_slider_b');
-      const phSlider = document.getElementById('f2_slider_ph');
-
-      const zVal = document.getElementById('f2_val_z');
-      const bVal = document.getElementById('f2_val_b');
-      const phVal = document.getElementById('f2_val_ph');
-      const sepTxt = document.getElementById('f2_txt_sep');
-
-      const scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x0f172a);
-
-      const camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
-      camera.position.set(6, 4, 6);
-
-      const renderer = new THREE.WebGLRenderer({ antialias: true });
-      renderer.setSize(container.clientWidth, container.clientHeight);
-      container.appendChild(renderer.domElement);
-
-      const controls = new THREE.OrbitControls(camera, renderer.domElement);
-      controls.enableDamping = true;
-
-      scene.add(new THREE.AmbientLight(0xffffff, 0.7));
-      const dLight = new THREE.DirectionalLight(0xffffff, 0.8);
-      dLight.position.set(5, 10, 7);
-      scene.add(dLight);
-
-      const makeLine = (p1, p2, color, dashed = false) => {
-        const geom = new THREE.BufferGeometry().setFromPoints([p1, p2]);
-        const mat = dashed 
-          ? new THREE.LineDashedMaterial({ color, dashSize: 0.2, gapSize: 0.1 })
-          : new THREE.LineBasicMaterial({ color, linewidth: 2 });
-        return new THREE.Line(geom, mat);
-      };
-
-      const axes = new THREE.Group();
-      axes.add(makeLine(new THREE.Vector3(-4,0,0), new THREE.Vector3(4,0,0), 0x64748b));
-      axes.add(makeLine(new THREE.Vector3(0,-4,0), new THREE.Vector3(0,4,0), 0x64748b));
-      axes.add(makeLine(new THREE.Vector3(0,0,-5), new THREE.Vector3(0,0,6), 0x38bdf8));
-      scene.add(axes);
-
-      const grid = new THREE.GridHelper(8, 16, 0x334155, 0x1e293b);
-      grid.rotation.x = Math.PI / 2;
-      scene.add(grid);
-
-      // Anel
-      let ringTorus = new THREE.Mesh(new THREE.TorusGeometry(2.5, 0.04, 16, 64), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
-      scene.add(ringTorus);
-
-      const pMesh = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
-      scene.add(pMesh);
-
-      const dq1 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
-      const dq2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshStandardMaterial({ color: 0xf97316 }));
-      scene.add(dq1, dq2);
-
-      const lineSep1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e);
-      const lineSep2 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e, true);
-      const lineField1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981);
-      const lineField2 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981, true);
-      const lineFieldNet = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x38bdf8);
-      scene.add(lineSep1, lineSep2, lineField1, lineField2, lineFieldNet);
-
-      function setLinePoints(line, p1, p2) {
-        line.geometry.setFromPoints([p1, p2]);
-        line.geometry.attributes.position.needsUpdate = true;
-        if (line.computeLineDistances) line.computeLineDistances();
-      }
-
-      function update() {
-        const z = parseFloat(zSlider.value);
-        const b = parseFloat(bSlider.value);
-        const ph = (parseFloat(phSlider.value) * Math.PI) / 180;
-
-        zVal.textContent = z.toFixed(2);
-        bVal.textContent = b.toFixed(2);
-        phVal.textContent = phSlider.value + '°';
-
-        ringTorus.geometry.dispose();
-        ringTorus.geometry = new THREE.TorusGeometry(b, 0.04, 16, 64);
-
-        const posP = new THREE.Vector3(0, 0, z);
-        pMesh.position.copy(posP);
-
-        const pFonte1 = new THREE.Vector3(b * Math.cos(ph), b * Math.sin(ph), 0);
-        const pFonte2 = new THREE.Vector3(b * Math.cos(ph + Math.PI), b * Math.sin(ph + Math.PI), 0);
-        dq1.position.copy(pFonte1);
-        dq2.position.copy(pFonte2);
-
-        setLinePoints(lineSep1, pFonte1, posP);
-        setLinePoints(lineSep2, pFonte2, posP);
-
-        sepTxt.textContent = `Separação r = √(b² + z²) = ${Math.hypot(b, z).toFixed(2)}`;
-
-        const s1 = new THREE.Vector3().subVectors(posP, pFonte1).normalize().multiplyScalar(1.2);
-        const s2 = new THREE.Vector3().subVectors(posP, pFonte2).normalize().multiplyScalar(1.2);
-
-        setLinePoints(lineField1, posP, new THREE.Vector3().addVectors(posP, s1));
-        setLinePoints(lineField2, posP, new THREE.Vector3().addVectors(posP, s2));
-
-        const net = new THREE.Vector3().addVectors(s1, s2);
-        setLinePoints(lineFieldNet, posP, new THREE.Vector3().addVectors(posP, net));
-      }
-
-      [zSlider, bSlider, phSlider].forEach(el => el.addEventListener('input', update));
-
-      window.addEventListener('resize', () => {
-        camera.aspect = container.clientWidth / container.clientHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(container.clientWidth, container.clientHeight);
-      });
-
-      function animate() {
-        requestAnimationFrame(animate);
-        controls.update();
-        renderer.render(scene, camera);
-      }
-      update();
-      animate();
-    })();
-
-    // ==========================================
-    // 3. GRÁFICO 2D INTERATIVO: COMPARAÇÃO Ez(z)
-    // ==========================================
-    (function initPlot() {
-      const canvas = document.getElementById('compPlotCanvas');
-      const showVol = document.getElementById('plot_show_vol');
-      const showMetal = document.getElementById('plot_show_metal');
-      const showRing = document.getElementById('plot_show_ring');
-
-      function draw() {
-        const rect = canvas.parentElement.getBoundingClientRect();
-        canvas.width = rect.width;
-        canvas.height = rect.height;
-
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
-        ctx.clearRect(0, 0, w, h);
-
-        const padL = 60, padR = 40, padT = 30, padB = 45;
-        const pw = w - padL - padR;
-        const ph = h - padT - padB;
-
-        // Eixos
-        ctx.strokeStyle = '#94a3b8';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(padL, padT + ph);
-        ctx.lineTo(padL + pw, padT + ph);
-        ctx.moveTo(padL, padT);
-        ctx.lineTo(padL, padT + ph);
-        ctx.stroke();
-
-        ctx.fillStyle = '#475569';
-        ctx.font = '12px sans-serif';
-        ctx.fillText('z (distância axial ao longo do eixo)', padL + pw - 200, padT + ph + 35);
-        ctx.save();
-        ctx.translate(18, padT + ph / 2);
-        ctx.rotate(-Math.PI / 2);
-        ctx.fillText('Campo Elétrico Ez(z)', -50, 0);
-        ctx.restore();
-
-        const a = 2.0;
-        const zMax = 6.0;
-        const toX = (z) => padL + (z / zMax) * pw;
-        const yMax = 1.25;
-        const toY = (e) => padT + ph - (e / yMax) * ph;
-
-        // Linha z = a
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = '#cbd5e1';
-        ctx.beginPath();
-        ctx.moveTo(toX(a), padT);
-        ctx.lineTo(toX(a), padT + ph);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.fillStyle = '#64748b';
-        ctx.fillText('z = a', toX(a) - 12, padT + ph + 18);
-
-        // 1. Esfera volumétrica
-        if (showVol.checked) {
-          ctx.strokeStyle = '#0284c7';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          for (let z = 0; z <= zMax; z += 0.05) {
-            let e = (z <= a) ? (z / a) : (a * a) / (z * z);
-            let px = toX(z);
-            let py = toY(e);
-            if (z === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-          }
-          ctx.stroke();
-        }
-
-        // 2. Esfera metálica
-        if (showMetal.checked) {
-          ctx.strokeStyle = '#ef4444';
-          ctx.lineWidth = 2.5;
-          ctx.beginPath();
-          ctx.moveTo(toX(0), toY(0));
-          ctx.lineTo(toX(a), toY(0));
-          ctx.stroke();
-
-          // Salto
-          ctx.setLineDash([3, 3]);
-          ctx.beginPath();
-          ctx.moveTo(toX(a), toY(0));
-          ctx.lineTo(toX(a), toY(1.0));
-          ctx.stroke();
-          ctx.setLineDash([]);
-
-          ctx.beginPath();
-          for (let z = a + 0.02; z <= zMax; z += 0.05) {
-            let e = (a * a) / (z * z);
-            let px = toX(z);
-            let py = toY(e);
-            if (z === a + 0.02) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-          }
-          ctx.stroke();
-        }
-
-        // 3. Espira circular (b = a)
-        if (showRing.checked) {
-          ctx.strokeStyle = '#10b981';
-          ctx.lineWidth = 2;
-          ctx.beginPath();
-          for (let z = 0; z <= zMax; z += 0.05) {
-            let e = (2.6 * z) / Math.pow(a * a + z * z, 1.5) * a * a;
-            let px = toX(z);
-            let py = toY(e);
-            if (z === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
-          }
-          ctx.stroke();
-        }
-      }
-
-      [showVol, showMetal, showRing].forEach(el => el.addEventListener('change', draw));
-      window.addEventListener('resize', draw);
-      setTimeout(draw, 100);
-    })();
-
-    // ==========================================
-    // 4. INICIALIZAÇÃO DO KATEX
-    // ==========================================
-    window.addEventListener('DOMContentLoaded', () => {
+    // --- UTILITÁRIOS MATEMÁTICOS E RENDERIZAÇÃO LATEX ---
+    function triggerKaTeX() {
       if (window.renderMathInElement) {
         renderMathInElement(document.body, {
           delimiters: [
-            { left: '$$', right: '$$', display: true },
-            { left: '$', right: '$', display: false }
+            {left: '$$', right: '$$', display: true},
+            {left: '$', right: '$', display: false}
           ],
           throwOnError: false
         });
       }
+    }
+
+    // --- FIGURA 1: THREE.JS (CASO 1: ESFERA) ---
+    const s1_container = document.getElementById('three_sphere_container');
+    const s1_scene = new THREE.Scene();
+    s1_scene.background = new THREE.Color(0x020617); // Slate-950
+
+    const s1_camera = new THREE.PerspectiveCamera(45, s1_container.clientWidth / s1_container.clientHeight, 0.1, 100);
+    s1_camera.position.set(6, 5, 6);
+
+    const s1_renderer = new THREE.WebGLRenderer({ antialias: true });
+    s1_renderer.setSize(s1_container.clientWidth, s1_container.clientHeight);
+    s1_container.appendChild(s1_renderer.domElement);
+
+    const s1_controls = new THREE.OrbitControls(s1_camera, s1_renderer.domElement);
+    s1_controls.enableDamping = true;
+
+    s1_scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const s1_light = new THREE.DirectionalLight(0xffffff, 0.7);
+    s1_light.position.set(5, 10, 7);
+    s1_scene.add(s1_light);
+
+    // Eixos
+    const makeLine = (p1, p2, color, dashed = false) => {
+      const geom = new THREE.BufferGeometry().setFromPoints([p1, p2]);
+      const mat = dashed 
+        ? new THREE.LineDashedMaterial({ color, dashSize: 0.15, gapSize: 0.1 })
+        : new THREE.LineBasicMaterial({ color, linewidth: 2 });
+      const line = new THREE.Line(geom, mat);
+      if (dashed) line.computeLineDistances();
+      return line;
+    };
+    s1_scene.add(makeLine(new THREE.Vector3(-4,0,0), new THREE.Vector3(4,0,0), 0x475569));
+    s1_scene.add(makeLine(new THREE.Vector3(0,-4,0), new THREE.Vector3(0,4,0), 0x475569));
+    s1_scene.add(makeLine(new THREE.Vector3(0,0,-1), new THREE.Vector3(0,0,7), 0x38bdf8));
+
+    // Esfera aramada (raio a = 2.5 fixo para referência da geometria)
+    const raio_a_fixo = 2.5;
+    const sphereAramada = new THREE.Mesh(
+      new THREE.SphereGeometry(raio_a_fixo, 20, 14),
+      new THREE.MeshBasicMaterial({ color: 0x38bdf8, wireframe: true, transparent: true, opacity: 0.15 })
+    );
+    s1_scene.add(sphereAramada);
+
+    // Ponto P(0,0,z)
+    const pMesh1 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
+    s1_scene.add(pMesh1);
+
+    // Elementos de Carga
+    const dq1 = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+    const dq1_pair = new THREE.Mesh(new THREE.BoxGeometry(0.25, 0.25, 0.25), new THREE.MeshStandardMaterial({ color: 0xd97706, transparent: true, opacity: 0.6 }));
+    s1_scene.add(dq1, dq1_pair);
+
+    // Vetores dinâmicos
+    const lineR_1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x38bdf8);
+    const lineRp_1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xfbbf24);
+    const lineSep_1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e);
+    const lineField_1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981);
+
+    const lineRp_1_pair = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xfbbf24, true);
+    const lineSep_1_pair = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e, true);
+    const lineField_1_pair = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981, true);
+
+    s1_scene.add(lineR_1, lineRp_1, lineSep_1, lineField_1, lineRp_1_pair, lineSep_1_pair, lineField_1_pair);
+
+    function updateDynLine(line, p1, p2) {
+      line.geometry.setFromPoints([p1, p2]);
+      line.geometry.attributes.position.needsUpdate = true;
+      if (line.computeLineDistances) line.computeLineDistances();
+    }
+
+    function updateFigura1() {
+      const z = parseFloat(document.getElementById('s1_z').value);
+      const rp = parseFloat(document.getElementById('s1_rp').value);
+      const th = (parseFloat(document.getElementById('s1_th').value) * Math.PI) / 180;
+      const ph = (parseFloat(document.getElementById('s1_ph').value) * Math.PI) / 180;
+      const showPair = document.getElementById('s1_pair').checked;
+
+      document.getElementById('s1_val_z').textContent = z.toFixed(2);
+      document.getElementById('s1_val_rp').textContent = rp.toFixed(2);
+      document.getElementById('s1_val_th').textContent = document.getElementById('s1_th').value + '°';
+      document.getElementById('s1_val_ph').textContent = document.getElementById('s1_ph').value + '°';
+
+      const posP = new THREE.Vector3(0, 0, z);
+      pMesh1.position.copy(posP);
+      updateDynLine(lineR_1, new THREE.Vector3(0,0,0), posP);
+
+      const xp = rp * Math.sin(th) * Math.cos(ph);
+      const yp = rp * Math.sin(th) * Math.sin(ph);
+      const zp = rp * Math.cos(th);
+      const posF = new THREE.Vector3(xp, yp, zp);
+      dq1.position.copy(posF);
+      updateDynLine(lineRp_1, new THREE.Vector3(0,0,0), posF);
+      updateDynLine(lineSep_1, posF, posP);
+
+      const sepVec = new THREE.Vector3().subVectors(posP, posF);
+      document.getElementById('s1_calc_sep').textContent = sepVec.length().toFixed(3);
+
+      const dirCampo = sepVec.clone().normalize().multiplyScalar(1.2);
+      updateDynLine(lineField_1, posP, new THREE.Vector3().addVectors(posP, dirCampo));
+
+      if (showPair) {
+        dq1_pair.visible = true;
+        lineRp_1_pair.visible = true;
+        lineSep_1_pair.visible = true;
+        lineField_1_pair.visible = true;
+
+        const ph2 = ph + Math.PI;
+        const xp2 = rp * Math.sin(th) * Math.cos(ph2);
+        const yp2 = rp * Math.sin(th) * Math.sin(ph2);
+        const posF2 = new THREE.Vector3(xp2, yp2, zp);
+
+        dq1_pair.position.copy(posF2);
+        updateDynLine(lineRp_1_pair, new THREE.Vector3(0,0,0), posF2);
+        updateDynLine(lineSep_1_pair, posF2, posP);
+
+        const sepVec2 = new THREE.Vector3().subVectors(posP, posF2);
+        const dirCampo2 = sepVec2.clone().normalize().multiplyScalar(1.2);
+        updateDynLine(lineField_1_pair, posP, new THREE.Vector3().addVectors(posP, dirCampo2));
+      } else {
+        dq1_pair.visible = false;
+        lineRp_1_pair.visible = false;
+        lineSep_1_pair.visible = false;
+        lineField_1_pair.visible = false;
+      }
+
+      const regEl = document.getElementById('s1_calc_regime');
+      if (z > raio_a_fixo) {
+        regEl.textContent = 'Regime: Ponto Externo (z > a)';
+        regEl.className = 'text-[10px] text-sky-400 font-mono';
+      } else if (Math.abs(z - raio_a_fixo) < 0.1) {
+        regEl.textContent = 'Regime: Fronteira (z = a)';
+        regEl.className = 'text-[10px] text-amber-400 font-mono';
+      } else {
+        regEl.textContent = 'Regime: Ponto Interno (z < a)';
+        regEl.className = 'text-[10px] text-emerald-400 font-mono';
+      }
+    }
+
+    ['s1_z', 's1_rp', 's1_th', 's1_ph', 's1_pair'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateFigura1);
     });
+
+    // --- FIGURA 2: THREE.JS (CASO 2: ESPIRA) ---
+    const s2_container = document.getElementById('three_ring_container');
+    const s2_scene = new THREE.Scene();
+    s2_scene.background = new THREE.Color(0x020617);
+
+    const s2_camera = new THREE.PerspectiveCamera(45, s2_container.clientWidth / s2_container.clientHeight, 0.1, 100);
+    s2_camera.position.set(6, 5, 5);
+
+    const s2_renderer = new THREE.WebGLRenderer({ antialias: true });
+    s2_renderer.setSize(s2_container.clientWidth, s2_container.clientHeight);
+    s2_container.appendChild(s2_renderer.domElement);
+
+    const s2_controls = new THREE.OrbitControls(s2_camera, s2_renderer.domElement);
+    s2_controls.enableDamping = true;
+
+    s2_scene.add(new THREE.AmbientLight(0xffffff, 0.8));
+    const s2_light = new THREE.DirectionalLight(0xffffff, 0.7);
+    s2_light.position.set(5, 10, 7);
+    s2_scene.add(s2_light);
+
+    s2_scene.add(makeLine(new THREE.Vector3(-4,0,0), new THREE.Vector3(4,0,0), 0x475569));
+    s2_scene.add(makeLine(new THREE.Vector3(0,-4,0), new THREE.Vector3(0,4,0), 0x475569));
+    s2_scene.add(makeLine(new THREE.Vector3(0,0,-5), new THREE.Vector3(0,0,5), 0x38bdf8));
+
+    const ringMesh = new THREE.Mesh(
+      new THREE.TorusGeometry(2.4, 0.04, 16, 64),
+      new THREE.MeshStandardMaterial({ color: 0x475569, metalness: 0.3 })
+    );
+    s2_scene.add(ringMesh);
+
+    const pMesh2 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 16, 16), new THREE.MeshStandardMaterial({ color: 0x38bdf8 }));
+    s2_scene.add(pMesh2);
+
+    const dq2_1 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshStandardMaterial({ color: 0xf59e0b }));
+    const dq2_2 = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshStandardMaterial({ color: 0xd97706 }));
+    s2_scene.add(dq2_1, dq2_2);
+
+    const lineSep2_1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e);
+    const lineSep2_2 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0xf43f5e, true);
+    const lineField2_1 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981);
+    const lineField2_2 = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x10b981, true);
+    const lineField2_net = makeLine(new THREE.Vector3(), new THREE.Vector3(), 0x38bdf8);
+
+    s2_scene.add(lineSep2_1, lineSep2_2, lineField2_1, lineField2_2, lineField2_net);
+
+    function updateFigura2() {
+      const z = parseFloat(document.getElementById('s2_z').value);
+      const b = parseFloat(document.getElementById('s2_b').value);
+      const ph = (parseFloat(document.getElementById('s2_ph').value) * Math.PI) / 180;
+
+      document.getElementById('s2_val_z').textContent = z.toFixed(2);
+      document.getElementById('s2_val_b').textContent = b.toFixed(2);
+      document.getElementById('s2_val_ph').textContent = document.getElementById('s2_ph').value + '°';
+
+      const zMaxRing = b / Math.SQRT2;
+      document.getElementById('s2_calc_zmax').textContent = `z = ± ${(zMaxRing).toFixed(2)}`;
+
+      ringMesh.geometry.dispose();
+      ringMesh.geometry = new THREE.TorusGeometry(b, 0.04, 16, 64);
+
+      const posP = new THREE.Vector3(0, 0, z);
+      pMesh2.position.copy(posP);
+
+      const pF1 = new THREE.Vector3(b * Math.cos(ph), b * Math.sin(ph), 0);
+      const pF2 = new THREE.Vector3(b * Math.cos(ph + Math.PI), b * Math.sin(ph + Math.PI), 0);
+
+      dq2_1.position.copy(pF1);
+      dq2_2.position.copy(pF2);
+
+      updateDynLine(lineSep2_1, pF1, posP);
+      updateDynLine(lineSep2_2, pF2, posP);
+
+      const sep1 = new THREE.Vector3().subVectors(posP, pF1);
+      document.getElementById('s2_calc_sep').textContent = sep1.length().toFixed(3);
+
+      const e1 = sep1.clone().normalize().multiplyScalar(1.2);
+      const sep2 = new THREE.Vector3().subVectors(posP, pF2);
+      const e2 = sep2.clone().normalize().multiplyScalar(1.2);
+
+      updateDynLine(lineField2_1, posP, new THREE.Vector3().addVectors(posP, e1));
+      updateDynLine(lineField2_2, posP, new THREE.Vector3().addVectors(posP, e2));
+
+      // Campo axial resultante
+      const eNet = new THREE.Vector3().addVectors(e1, e2);
+      updateDynLine(lineField2_net, posP, new THREE.Vector3().addVectors(posP, eNet));
+    }
+
+    ['s2_z', 's2_b', 's2_ph'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updateFigura2);
+    });
+
+    // --- GRÁFICOS DINÂMICOS 2D (EXERCÍCIO 23) ---
+    const plotCanvas = document.getElementById('canvasPlots');
+    function drawPlots() {
+      const rect = plotCanvas.parentElement.getBoundingClientRect();
+      plotCanvas.width = rect.width;
+      plotCanvas.height = 280;
+
+      const ctx = plotCanvas.getContext('2d');
+      const w = plotCanvas.width;
+      const h = plotCanvas.height;
+
+      const a = parseFloat(document.getElementById('plot_raio_a').value);
+      const b = parseFloat(document.getElementById('plot_raio_b').value);
+
+      document.getElementById('plot_val_a').textContent = a.toFixed(1);
+      document.getElementById('plot_val_b').textContent = b.toFixed(1);
+
+      ctx.clearRect(0, 0, w, h);
+
+      const padL = 50, padR = 25, padT = 25, padB = 40;
+      const pw = w - padL - padR;
+      const ph = h - padT - padB;
+
+      const zMax = 6.0;
+      const yMax = 1.35;
+
+      const toX = (z) => padL + (z / zMax) * pw;
+      const toY = (val) => padT + ph - (val / yMax) * ph;
+
+      // Eixos
+      ctx.strokeStyle = '#94a3b8';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(padL, padT + ph);
+      ctx.lineTo(padL + pw, padT + ph);
+      ctx.moveTo(padL, padT);
+      ctx.lineTo(padL, padT + ph);
+      ctx.stroke();
+
+      ctx.fillStyle = '#475569';
+      ctx.font = '11px sans-serif';
+      ctx.fillText('z (distância axial)', padL + pw - 90, padT + ph + 28);
+      ctx.save();
+      ctx.translate(14, padT + ph / 2);
+      ctx.rotate(-Math.PI / 2);
+      ctx.fillText('Campo Elétrico Ez(z)', -50, 0);
+      ctx.restore();
+
+      // Traço vertical em z = a
+      ctx.setLineDash([4, 4]);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.beginPath();
+      ctx.moveTo(toX(a), padT);
+      ctx.lineTo(toX(a), padT + ph);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillText('z = a', toX(a) - 12, padT + ph + 16);
+
+      // Traço vertical no pico da espira z = b / sqrt(2)
+      const zPico = b / Math.SQRT2;
+      ctx.setLineDash([2, 3]);
+      ctx.strokeStyle = '#a7f3d0';
+      ctx.beginPath();
+      ctx.moveTo(toX(zPico), padT);
+      ctx.lineTo(toX(zPico), padT + ph);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.fillStyle = '#059669';
+      ctx.fillText('b/√2', toX(zPico) - 10, padT + 12);
+
+      // 1. Esfera Volumétrica (Azul)
+      ctx.strokeStyle = '#0284c7';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let z = 0; z <= zMax; z += 0.05) {
+        let val = (z <= a) ? (z / a) : (a * a) / (z * z);
+        let px = toX(z), py = toY(val);
+        if (z === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      // 2. Esfera Metálica (Vermelha)
+      ctx.strokeStyle = '#f43f5e';
+      ctx.lineWidth = 2.5;
+      // Parte interna = 0
+      ctx.beginPath();
+      ctx.moveTo(toX(0), toY(0));
+      ctx.lineTo(toX(a), toY(0));
+      ctx.stroke();
+
+      // Salto em a
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.moveTo(toX(a), toY(0));
+      ctx.lineTo(toX(a), toY(1.0));
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // Parte externa
+      ctx.beginPath();
+      for (let z = a + 0.02; z <= zMax; z += 0.05) {
+        let val = (a * a) / (z * z);
+        let px = toX(z), py = toY(val);
+        if (z === a + 0.02) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+
+      // 3. Espira (Verde Esmeralda)
+      ctx.strokeStyle = '#10b981';
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      for (let z = 0; z <= zMax; z += 0.05) {
+        // Normalizado para que o pico tenha altura comparável
+        let val = (2.6 * z * b * b) / Math.pow(b * b + z * z, 1.5);
+        let px = toX(z), py = toY(val);
+        if (z === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+      }
+      ctx.stroke();
+    }
+
+    ['plot_raio_a', 'plot_raio_b'].forEach(id => {
+      document.getElementById(id).addEventListener('input', drawPlots);
+    });
+
+    // --- LOOP DE RENDERIZAÇÃO E REDIMENSIONAMENTO ---
+    function animate() {
+      requestAnimationFrame(animate);
+      s1_controls.update();
+      s2_controls.update();
+      s1_renderer.render(s1_scene, s1_camera);
+      s2_renderer.render(s2_scene, s2_camera);
+    }
+
+    window.addEventListener('resize', () => {
+      s1_camera.aspect = s1_container.clientWidth / s1_container.clientHeight;
+      s1_camera.updateProjectionMatrix();
+      s1_renderer.setSize(s1_container.clientWidth, s1_container.clientHeight);
+
+      s2_camera.aspect = s2_container.clientWidth / s2_container.clientHeight;
+      s2_camera.updateProjectionMatrix();
+      s2_renderer.setSize(s2_container.clientWidth, s2_container.clientHeight);
+
+      drawPlots();
+    });
+
+    window.onload = () => {
+      updateFigura1();
+      updateFigura2();
+      drawPlots();
+      triggerKaTeX();
+      animate();
+    };
   </script>
 </body>
 </html>
